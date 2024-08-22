@@ -1,25 +1,38 @@
 import { useState, useEffect } from 'react';
-import { getCurrentUserProfile, getCurrentUserPlaylists} from '../spotify';
+import { getCurrentUserProfile, getCurrentUserPlaylists, getTopArtists, getTopTracks} from '../spotify';
+import {SectionWrapper, ArtistsGrid, TrackList, PlaylistsGrid} from '../components';
 import { StyledHeader } from '../styles';
+
+
 
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [playlists, setPlaylists] = useState(null);
+  const [topArtists, setTopArtists] = useState(null);
+  const [topTracks, setTopTracks] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // gets user's account info
         const profileData = await getCurrentUserProfile();
         setProfile(profileData.data);
 
+        // gets user's playlists
+        // playlistsData.data.items[0].id gives us the playlist ID for the first playlist in the array of playlists returned
         const playlistsData = await getCurrentUserPlaylists();
         setPlaylists(playlistsData.data);
+    
+        //gets user's top artists 
+        // each object in the items array should be data for an artist  
+        const topArtistsData = await getTopArtists();
+        setTopArtists(topArtistsData.data); 
 
-        // firstPlaylist is the ID of the first playlist 
-        const firstPlaylist = playlistsData.data.items[0].id;
-        console.log(firstPlaylist);
-        // console.log('First Playlist Tracks:', firstPlaylist.tracks);
+        //gets user's top tracks 
+        const topTracksData = await getTopTracks();
+        setTopTracks(topTracksData.data);
+
       } catch(e) {
         console.error(e);
       }
@@ -51,10 +64,32 @@ const Profile = () => {
               </div>
             </div>
        </StyledHeader>
-       </>
-      )}
-    </>
+      
+        
+            <main>
+            {topArtists && topTracks && playlists && (
+              <>
+               <SectionWrapper title="Top artists this month" seeAllLink="/top-artists">
+                <ArtistsGrid artists={topArtists.items.slice(0, 10)} />
+              </SectionWrapper>
+              
+              <SectionWrapper title="Top tracks this month" seeAllLink="/top-tracks">
+                <TrackList tracks={topTracks.items.slice(0, 10)} />
+              </SectionWrapper>
+
+              <SectionWrapper title="Playlists" seeAllLink="/playlists">
+                <PlaylistsGrid playlists={playlists.items.slice(0, 10)} />
+              </SectionWrapper>
+              </>
+               )}
+            </main>
+         
+        </>
+  )}
+  </>
   )
 };
+
+// notice how SectionWrapper wraps around the new sections  
 
 export default Profile;
