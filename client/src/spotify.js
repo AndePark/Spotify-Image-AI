@@ -14,29 +14,18 @@ const LOCALSTORAGE_VALUES = {
   refreshToken: window.localStorage.getItem(LOCALSTORAGE_KEYS.refreshToken),
   expireTime: window.localStorage.getItem(LOCALSTORAGE_KEYS.expireTime),
   timestamp: window.localStorage.getItem(LOCALSTORAGE_KEYS.timestamp),
-};
+}
 
-
-/**
- * returns True if token has expired (elapsed time is greater than expiration time)
- * returns False if token has not expired or if accessToken or timeStamp is missing 
- */
-const hasTokenExpired = () => {
-  const {accessToken, timestamp, expireTime} = LOCALSTORAGE_VALUES;
-  if (!accessToken || !timestamp) {
-    return false; 
-  }
-  const milliSecElapsed = Date.now() - Number(timestamp); 
-  return (milliSecElapsed / 1000) > Number(expireTime);
-}; 
 
 /**
  * clear all localStorage items and reload the page 
  */
 export const logout = () => {
-  for (const property in LOCALSTORAGE_KEYS) { 
+  // Clear all localStorage items
+  for (const property in LOCALSTORAGE_KEYS) {
     window.localStorage.removeItem(LOCALSTORAGE_KEYS[property]);
   }
+  // Navigate to homepage
   window.location = window.location.origin;
 };
 
@@ -44,7 +33,7 @@ export const logout = () => {
  * Use refreshToken in localStorage to hit /refresh_token endpoint in backend, then update values in 
  * localStorage with data from response
  */
-const refreshToken = async() => {
+const refreshToken = async () => {
   try {
     // Logout if there's no refresh token stored or we've managed to get into a reload infinite loop
     if (!LOCALSTORAGE_VALUES.refreshToken ||
@@ -69,6 +58,19 @@ const refreshToken = async() => {
     console.error(e);
   }
 };
+
+/**
+ * returns True if token has expired (elapsed time is greater than expiration time)
+ * returns False if token has not expired or if accessToken or timeStamp is missing 
+ */
+const hasTokenExpired = () => {
+  const {accessToken, timestamp, expireTime} = LOCALSTORAGE_VALUES;
+  if (!accessToken || !timestamp) {
+    return false; 
+  }
+  const milliSecElapsed = Date.now() - Number(timestamp); 
+  return (milliSecElapsed / 1000) > Number(expireTime);
+}; 
 
 
 /**
@@ -114,3 +116,17 @@ const getAccessToken = () => {
 };
   
   export const accessToken = getAccessToken();
+
+/**
+ * Axios global request headers
+ * https://github.com/axios/axios#global-axios-defaults
+ */
+axios.defaults.baseURL = 'https://api.spotify.com/v1';
+axios.defaults.headers['Authorization'] = `Bearer ${accessToken}`;
+axios.defaults.headers['Content-Type'] = 'application/json';
+
+
+  /**
+ * get current user's profile
+ */
+  export const getCurrentUserProfile = () => axios.get('/me');
