@@ -1,22 +1,29 @@
 import { useState, useEffect } from 'react';
-import { accessToken, logout, getCurrentUserProfile } from './spotify';
+import { accessToken, logout } from './spotify';
 import {
   BrowserRouter as Router,
   Switch,
   Route, 
   useLocation
 } from 'react-router-dom';
-import styled from 'styled-components/macro';
 import { GlobalStyle } from './styles';
+import { Login, Profile} from './pages';
+import styled from 'styled-components/macro';
 
-
-const StyledLoginButton = styled.a`
-  background-color: var(--green);
+const StyledLogoutButton = styled.button`
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: rgba(0,0,0,.7);
   color: var(--white);
-  padding: 10px 20px;
-  margin: 20px;
-  border-radius: 30px;
-  display: inline-block;
+  font-size: var(--fz-sm);
+  font-weight: 700;
+  border-radius: var(--border-radius-pill);
+  z-index: 10;
+  @media (min-width: 768px) {
+    right: var(--spacing-lg);
+  }
 `;
 
 function ScrollToTop() {
@@ -33,22 +40,9 @@ function ScrollToTop() {
 
 function App() {
   const [token, setToken] = useState(null);
-  const [profile, setProfile] = useState(null);
-
 
   useEffect(() => {
     setToken(accessToken);
-    
-    const fetchData = async () => {
-      try {
-        const {data} = await getCurrentUserProfile();
-        setProfile(data);
-      } catch(e) {
-        console.error(e);
-      }
-    };
-
-    fetchData();
   }, []);
 
   return (
@@ -57,10 +51,10 @@ function App() {
 
       <header className="App-header">
       {!token ? (
-          <StyledLoginButton href="http://localhost:8888/login">
-            Log in to Spotify
-          </StyledLoginButton>
+          <Login />
         ) : (
+          <>
+          <StyledLogoutButton onClick = {logout}>Log Out</StyledLogoutButton>
           <Router>
             <ScrollToTop />
             <Switch>
@@ -77,22 +71,11 @@ function App() {
                 <h1>Playlists</h1>
               </Route>
               <Route path="/">
-                <>
-                  <button onClick={logout}>Log Out</button>
-
-                  {profile && (
-                    <div>
-                      <h1>{profile.display_name}</h1>
-                      <p>{profile.followers.total} Followers</p>
-                      {profile.images.length && profile.images[0].url && (
-                        <img src={profile.images[0].url} alt="Avatar"/>
-                      )}
-                    </div>
-                  )}
-                </>
+               <Profile />
               </Route>
             </Switch>
           </Router>
+          </>
         )}
       </header>
     </div>
