@@ -7,7 +7,7 @@ import {
   useLocation
 } from 'react-router-dom';
 import { GlobalStyle } from './styles';
-import { Login, Profile} from './pages';
+import { Login, Profile, TopArtists, TopTracks, Playlists} from './pages';
 import styled from 'styled-components/macro';
 
 const StyledLogoutButton = styled.button`
@@ -59,16 +59,16 @@ function App() {
             <ScrollToTop />
             <Switch>
               <Route path="/top-artists">
-                <h1>Top Artists</h1>
+                <TopArtists />
               </Route>
               <Route path="/top-tracks">
-                <h1>Top Tracks</h1>
+                <TopTracks />
               </Route>
               <Route path="/playlists/:id">
                 <h1>Playlist</h1>
               </Route>
               <Route path="/playlists">
-                <h1>Playlists</h1>
+                <Playlists />
               </Route>
               <Route path="/">
                <Profile />
