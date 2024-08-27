@@ -53,6 +53,8 @@ const Playlists = () => {
     catchErrors(fetchMoreData());
   }, [playlistsData]);
 
+  console.log(playlists);
+
 
   return (
     <main>

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { catchErrors } from '../utils'
 import { getPlaylistById, getAudioFeaturesForTracks } from '../spotify';
 import { StyledHeader, StyledDropdown} from '../styles';
-import { TrackList, SectionWrapper, Loader} from '../components';
+import { TrackList, SectionWrapper, Loader, AverageDance} from '../components';
 import axios from 'axios';
 
 
@@ -17,6 +17,9 @@ const Playlist = () => {
     const [audioFeatures, setAudioFeatures] = useState(null);
     const [sortValue, setSortValue] = useState('');
     const sortOptions = ['danceability', 'tempo', 'energy'];
+
+    // const [dance, setDance] = useState(0);
+
 
 
 
@@ -100,6 +103,10 @@ const Playlist = () => {
     });
   }, [tracks, audioFeatures]);
 
+
+  console.log(audioFeatures);
+  console.log(typeof(audioFeatures));
+  
    // Sort tracks by audio feature to be used in template
    const sortedTracks = useMemo(() => {
     if (!tracksWithAudioFeatures) {
@@ -171,7 +178,8 @@ const Playlist = () => {
                 </select>
               </StyledDropdown>
 
-              {sortedTracks && <TrackList tracks={sortedTracks} />}
+              {/* {sortedTracks && <TrackList tracks={sortedTracks} />} */}
+              {audioFeatures && <AverageDance audioFeatures={audioFeatures} />}
             </SectionWrapper>
           </main>
         </>
