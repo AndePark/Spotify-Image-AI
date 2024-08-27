@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { catchErrors } from '../utils'
-import { getPlaylistById, getAudioFeaturesForTracks } from '../spotify';
+import { getPlaylistById, getAudioFeaturesForTracks, changeDetails, changeImage } from '../spotify';
 import { StyledHeader, StyledDropdown} from '../styles';
 import { TrackList, SectionWrapper, Loader} from '../components';
 import axios from 'axios';
@@ -17,8 +17,7 @@ const Playlist = () => {
     const [audioFeatures, setAudioFeatures] = useState(null);
     const [sortValue, setSortValue] = useState('');
     const sortOptions = ['danceability', 'tempo', 'energy'];
-
-
+    
 
     // id is a dependency for this useEffect hook because we need it to call the getPlaylistById function 
     // we are storing the playlist object as well as the tracks property from the playlist object so that 
@@ -28,11 +27,16 @@ const Playlist = () => {
         const { data } = await getPlaylistById(id);
         setPlaylist(data);
         setTracksData(data.tracks);
+        const result = await changeDetails(id);
+        console.log(result);
+        const response = await changeImage(id);
+        console.log(response);
     };
 
     catchErrors(fetchData()); 
     }, [id]);
 
+    // console.log(playlist);
     // When tracksData updates, compile arrays of tracks and audioFeatures
     useEffect(() => {
         if(!tracksData) {
@@ -118,19 +122,37 @@ const Playlist = () => {
     });
   }, [sortValue, tracksWithAudioFeatures]);
 
-  const averageDanceability = useMemo(() => {
+
+  const averageMetrics = useMemo(() => {
     if (!audioFeatures || audioFeatures.length === 0) {
-      return 0;
+      return {
+        danceability: 0,
+        energy: 0,
+        tempo: 0,
+      };
     }
   
-    const totalDanceability = audioFeatures.reduce((acc, feature) => {
-      return acc + (feature ? feature.danceability : 0);
-    }, 0);
+    const totalMetrics = audioFeatures.reduce(
+      (acc, feature) => {
+        if (feature) {
+          acc.danceability += feature.danceability;
+          acc.energy += feature.energy;
+          acc.tempo += feature.tempo;
+        }
+        return acc;
+      },
+      { danceability: 0, energy: 0, tempo: 0 }
+    );
   
-    return totalDanceability / audioFeatures.length;
+    const count = audioFeatures.length;
+  
+    return {
+      danceability: totalMetrics.danceability / count,
+      energy: totalMetrics.energy / count,
+      tempo: totalMetrics.tempo / count,
+    };
   }, [audioFeatures]);
 
-  console.log(audioFeatures);
   
 
   return (
@@ -138,6 +160,7 @@ const Playlist = () => {
       {playlist ? (
         <>
           <StyledHeader>
+            
             <div className="header__inner">
               {playlist.images.length && playlist.images[0].url && (
                 <img
@@ -184,7 +207,9 @@ const Playlist = () => {
                   ))}
                 </select>
               </StyledDropdown>
-              <p>Average Danceability: {averageDanceability.toFixed(2)}</p>
+                <p>Average Danceability: {averageMetrics.danceability.toFixed(3)}</p>
+                <p>Average Energy: {averageMetrics.energy.toFixed(3)}</p>
+                <p>Average Tempo: {averageMetrics.tempo.toFixed(3)}</p>
               {sortedTracks && <TrackList tracks={sortedTracks} />}
             </SectionWrapper>
           </main>
@@ -194,6 +219,8 @@ const Playlist = () => {
       )}
     </>
   );
+
+  
 };
 
 export default Playlist;

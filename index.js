@@ -37,7 +37,18 @@ const generateRandomString = length => {
     const state = generateRandomString(16);
     res.cookie(stateKey, state);
   
-    const scope = 'user-read-private user-read-email user-top-read playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public';
+    // const scope = 'user-read-private user-read-email user-top-read ugc-image-upload playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public';
+
+    const scope = [
+      'user-read-private',
+      'user-read-email',
+      'user-top-read',
+      'ugc-image-upload',
+      'playlist-read-private',
+      'playlist-read-collaborative',
+      'playlist-modify-private',
+      'playlist-modify-public',
+    ].join(' ');
 
     const queryParams = querystring.stringify({
       client_id: CLIENT_ID,
@@ -113,6 +124,31 @@ app.get('/refresh_token', (req, res) => {
       });
   });
 
+// app.get('/playlist_image', (req, res) => {
+//   // const id = req.query.id; 
+//   // const img = req.query.img;
+//   // const access_token = req.query.access_token;
+
+//   const {id, img, access_token} = req.query;
+
+//   axios({
+//     method: 'put', 
+//     url:  `https://api.spotify.com/v1/playlists/${id}/images`,
+//     data: querystring.stringify({
+//       body: img
+//     }),
+//     headers: {
+//       Authorization: `Bearer ${access_token}`,
+//       'Content-Type': 'image/jpeg',
+//     },
+//   })
+//   .then(response => {
+//     res.send(response.data);
+//   })
+//   .catch(error => {
+//     res.send(error);
+//   });
+// });
 
 
 app.listen(port, () => {
