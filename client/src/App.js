@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { accessToken, logout } from './spotify';
 import {
   BrowserRouter as Router,
-  Switch,
+  Routes,
   Route, 
   useLocation
 } from 'react-router-dom';
-import { GlobalStyle } from './styles';
 import { Login, Profile, TopArtists, TopTracks, Playlists} from './pages';
+
+import { GlobalStyle } from './styles';
 import styled from 'styled-components/macro';
 
 const StyledLogoutButton = styled.button`
@@ -50,31 +51,20 @@ function App() {
       <GlobalStyle />
 
       <header className="App-header">
-      {!token ? (
+        {!token ? (
           <Login />
         ) : (
           <>
-          <StyledLogoutButton onClick = {logout}>Log Out</StyledLogoutButton>
-          <Router>
-            <ScrollToTop />
-            <Switch>
-              <Route path="/top-artists">
-                <TopArtists />
-              </Route>
-              <Route path="/top-tracks">
-                <TopTracks />
-              </Route>
-              <Route path="/playlists/:id">
-                <h1>Playlist</h1>
-              </Route>
-              <Route path="/playlists">
-                <Playlists />
-              </Route>
-              <Route path="/">
-               <Profile />
-              </Route>
-            </Switch>
-          </Router>
+            <StyledLogoutButton onClick={logout}>Log Out</StyledLogoutButton>
+            <Router>
+              <ScrollToTop />
+              <Routes>
+                <Route path="/top-artists" element={<TopArtists />}></Route>
+                <Route path="/top-tracks" element={<TopTracks />}></Route>
+                <Route path="/playlists" element={<Playlists />}></Route>
+                <Route path="/" element={<Profile />}></Route>
+              </Routes>
+            </Router>
           </>
         )}
       </header>

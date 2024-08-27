@@ -1,6 +1,5 @@
-import styled from 'styled-components/macro';
+import styled from "styled-components/macro";
 
-// unordered list
 const StyledTrackList = styled.ul`
   list-style: none;
   margin: 0;

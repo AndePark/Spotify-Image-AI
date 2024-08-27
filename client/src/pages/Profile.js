@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react';
-import { getCurrentUserProfile, getCurrentUserPlaylists, getTopArtists, getTopTracks} from '../spotify';
-import { SectionWrapper, ArtistsGrid, TrackList, PlaylistsGrid} from '../components';
+import { catchErrors } from '../utils';
+import {
+  getCurrentUserProfile,
+  getCurrentUserPlaylists,
+  getTopArtists,
+  getTopTracks
+} from '../spotify';
+import {
+  SectionWrapper,
+  ArtistsGrid,
+  TrackList, 
+  PlaylistsGrid, 
+  Loader
+} from '../components';
 import { StyledHeader } from '../styles';
 
 const Profile = () => {
@@ -9,72 +21,82 @@ const Profile = () => {
     const [topArtists, setTopArtists] = useState(null);
     const [topTracks, setTopTracks] = useState(null);
 
-
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-              // all these await functions are promises that are returned
-              // from axios get requests (REMEMBER: Axios always returns JSON data
-              // in property called data on the response object) 
-              // EX. response from getCurrentUserProfile() is stored in userProfile variable 
-              const userProfile = await getCurrentUserProfile();
-              setProfile(userProfile.data);
-              
-              const userPlaylists = await getCurrentUserPlaylists();
-              setPlaylists(userPlaylists.data);
+      const fetchData = async () => {
+        const userProfile = await getCurrentUserProfile();
+        setProfile(userProfile.data);
+  
+        const userPlaylists = await getCurrentUserPlaylists();
+        setPlaylists(userPlaylists.data);
+  
+        const userTopArtists = await getTopArtists();
+        setTopArtists(userTopArtists.data);
+  
+        const userTopTracks = await getTopTracks();
+        setTopTracks(userTopTracks.data);
 
-              const userTopArtists = await getTopArtists();
-              setTopArtists(userTopArtists.data);
+        console.log(userPlaylists);
+      };
+  
+      catchErrors(fetchData());
+    }, []);
 
-              const userTopTracks = await getTopTracks();
-              setTopTracks(userTopTracks.data);
-            } catch(e) {
-              console.error(e);
-            }
-          };
-          fetchData();
-        }, []);
-
-        return (
-            <>
-              {profile && (
-                <>
-                  <StyledHeader type="user">
-                    <div className="header__inner">
-                      {profile.images.length && profile.images[0].url && (
-                        <img className="header__img" src={profile.images[0].url} alt="Avatar"/>
-                      )}
-                      <div>
-                        <div className="header__overline">Profile</div>
-                        <h1 className="header__name">{profile.display_name}</h1>
-                        <p className="header__meta">
-                            {playlists && (
-                                <span>{playlists.total} Playlist{playlists.total !== 1 ? 's' : ''}</span>
-                             )}
-                          <span>
-                            {profile.followers.total} Follower{profile.followers.total !== 1 ? 's' : ''}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                  </StyledHeader>
-                  {topArtists && topTracks && playlists && (
-                    <main>
-                        <SectionWrapper title="Top Artists This Month" seeAllLink="/top-artists">
-                            <ArtistsGrid artists = {topArtists.items.slice(0,10)}/>
-                        </SectionWrapper>
-                        <SectionWrapper title="Top Tracks This Month" seeAllLink="/top-tracks">
-                            <TrackList tracks = {topTracks.items.slice(0,10)}/>
-                        </SectionWrapper>
-                        <SectionWrapper title="Playlists" seeAllLink="/playlists">
-                            <PlaylistsGrid playlists = {playlists.items.slice(0,10)}/>
-                        </SectionWrapper>
-                    </main>
-                  )}
-                </>
+    return (
+      <>
+        {profile && (
+          <StyledHeader type="user">
+            <div className="header__inner">
+              {profile.images.length && profile.images[0].url && (
+                <img
+                  className="header__img"
+                  src={profile.images[0].url}
+                  alt="Avatar"
+                />
               )}
-            </>
-          )
-        };
+              <div>
+                <div className="header__overline">Profile</div>
+                <h1 className="header__name">{profile.display_name}</h1>
+                <p className="header__meta">
+                  {playlists && (
+                    <span>
+                      {playlists.total} Playlist{playlists.total !== 1 ? "s" : ""}
+                    </span>
+                  )}
+                  <span>
+                    {profile.followers.total} Follower
+                    {profile.followers.total !== 1 ? "s" : ""}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </StyledHeader>
+        )}
+  
+        {topArtists && topTracks && playlists ? (
+          <main>
+            <SectionWrapper
+              title="Top Artists this Month"
+              seeAllLink="/top-artists"
+            >
+              <ArtistsGrid artists={topArtists.items.slice(0, 10)} />
+            </SectionWrapper>
+  
+            <SectionWrapper
+              title="Top Tracks this Month"
+              seeAllLink="./top-tracks"
+            >
+              <TrackList tracks={topTracks.items.slice(0, 10)} />
+            </SectionWrapper>
+  
+            <SectionWrapper title="Playlists" seeAllLink="/playlists">
+              <PlaylistsGrid playlists={playlists.items.slice(0, 10)} />
+            </SectionWrapper>
+          </main>
+        ) : (
+          <Loader />
+        )}
+      </>
+    );
+  };
 
 export default Profile;

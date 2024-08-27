@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { getCurrentUserPlaylists } from '../spotify';
 import { catchErrors } from '../utils';
-import { SectionWrapper, PlaylistsGrid } from '../components';
+import { SectionWrapper, PlaylistsGrid, Loader } from '../components';
 
 const Playlists = () => {
   const [playlistsData, setPlaylistsData] = useState(null);
@@ -10,8 +10,8 @@ const Playlists = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const usersTopPlaylists = await getCurrentUserPlaylists();
-      setPlaylistsData(usersTopPlaylists.data);
+      const { data } = await getCurrentUserPlaylists();
+      setPlaylistsData(data);
     };
 
     catchErrors(fetchData());
@@ -28,8 +28,8 @@ const Playlists = () => {
     // make sure we get ALL playlists by fetching the next set of playlists
     const fetchMoreData = async () => {
       if (playlistsData.next) {
-        const moreUserPlaylists = await axios.get(playlistsData.next);
-        setPlaylistsData(moreUserPlaylists.data);
+        const { data } = await axios.get(playlistsData.next);
+        setPlaylistsData(data);
       }
     };
 
@@ -41,17 +41,18 @@ const Playlists = () => {
       ...playlistsData.items
     ]));
 
+
+
     // Fetch next set of playlists as needed
     catchErrors(fetchMoreData());
-
   }, [playlistsData]);
+
+  console.log(playlists);
 
   return (
     <main>
       <SectionWrapper title="Public Playlists" breadcrumb={true}>
-        {playlists && (
-          <PlaylistsGrid playlists={playlists} />
-        )}
+        {playlists ? <PlaylistsGrid playlists={playlists} /> : <Loader />}
       </SectionWrapper>
     </main>
   );

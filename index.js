@@ -14,6 +14,7 @@ const port = 8888;
 
 /**
  * Generates a random string containing numbers and letters
+ * Used to give state value which adds protection during authorization
  * @param  {number} length The length of the string
  * @return {string} The generated string
  */
@@ -36,12 +37,8 @@ const generateRandomString = length => {
     const state = generateRandomString(16);
     res.cookie(stateKey, state);
   
-    const scope = [
-      'user-read-private',
-      'user-read-email',
-      'user-top-read'
-    ].join(' ');
-  
+    const scope = 'user-read-private user-read-email user-top-read playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public';
+
     const queryParams = querystring.stringify({
       client_id: CLIENT_ID,
       response_type: 'code',
