@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { catchErrors } from '../utils'
-import { getPlaylistById, getAudioFeaturesForTracks, changeDetails, changeImage } from '../spotify';
+import { getPlaylistById, getAudioFeaturesForTracks, changeImage } from '../spotify';
 import { StyledHeader, StyledDropdown} from '../styles';
 import { TrackList, SectionWrapper, Loader} from '../components';
 import axios from 'axios';
@@ -27,8 +27,8 @@ const Playlist = () => {
         const { data } = await getPlaylistById(id);
         setPlaylist(data);
         setTracksData(data.tracks);
-        const result = await changeDetails(id);
-        console.log(result);
+        // const result = await changeDetails(id);
+        // console.log(result);
         const response = await changeImage(id);
         console.log(response);
     };

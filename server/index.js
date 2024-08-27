@@ -4,6 +4,7 @@ require('dotenv').config();
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 const express = require('express');
 const querystring = require('querystring');
@@ -124,31 +125,6 @@ app.get('/refresh_token', (req, res) => {
       });
   });
 
-// app.get('/playlist_image', (req, res) => {
-//   // const id = req.query.id; 
-//   // const img = req.query.img;
-//   // const access_token = req.query.access_token;
-
-//   const {id, img, access_token} = req.query;
-
-//   axios({
-//     method: 'put', 
-//     url:  `https://api.spotify.com/v1/playlists/${id}/images`,
-//     data: querystring.stringify({
-//       body: img
-//     }),
-//     headers: {
-//       Authorization: `Bearer ${access_token}`,
-//       'Content-Type': 'image/jpeg',
-//     },
-//   })
-//   .then(response => {
-//     res.send(response.data);
-//   })
-//   .catch(error => {
-//     res.send(error);
-//   });
-// });
 
 
 app.listen(port, () => {

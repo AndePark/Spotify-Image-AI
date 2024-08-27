@@ -19,25 +19,25 @@ const LOCALSTORAGE_VALUES = {
 
 
 
-  // this works to change playlist details 
-  export const changeDetails = async (playlistId) => {
-    const response = await axios.put(`https://api.spotify.com/v1/playlists/${playlistId}`, 
-      {
-        name: "updated playlist", 
-        description: "updated desc", 
-        public: false,
-      }, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${LOCALSTORAGE_VALUES.accessToken}`,
-        },
-      }
-    );
-    if (!response) {
-      return false;
-    }
-    return response.data; 
-  };
+  // // this works to change playlist details 
+  // export const changeDetails = async (playlistId) => {
+  //   const response = await axios.put('https://api.spotify.com/v1/playlists/' + playlistId, 
+  //     {
+  //       name: "updated playlist", 
+  //       description: "updated desc", 
+  //       public: false,
+  //     }, {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${LOCALSTORAGE_VALUES.accessToken}`,
+  //       },
+  //     }
+  //   );
+  //   if (!response) {
+  //     return false;
+  //   }
+  //   return response.data; 
+  // };
 
 
 
