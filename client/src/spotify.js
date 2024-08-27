@@ -132,7 +132,7 @@ axios.defaults.headers['Content-Type'] = 'application/json';
   export const getCurrentUserProfile = () => axios.get('/me');
 
   // https://api.spotify.com/v1/me/playlists
-  export const getCurrentUserPlaylists = (limit = 10) => { 
+  export const getCurrentUserPlaylists = (limit = 20) => { 
     return axios.get(`/me/playlists?limit=${limit}`);
   };
 
@@ -145,3 +145,16 @@ axios.defaults.headers['Content-Type'] = 'application/json';
   export const getTopTracks = (time_range = 'short_term') => {
     return axios.get(`/me/top/tracks?time_range=${time_range}`);
   };
+
+  //https://api.spotify.com/v1/playlists/{playlist_id}
+  export const getPlaylistById = (playlist_id) => {
+    return axios.get(`/playlists/${playlist_id}`);
+  };
+
+  //https://api.spotify.com/v1/audio-features
+  //ids is a comma-separated list of the Spotify IDs for the tracks 
+  export const getAudioFeaturesForTracks = (ids) => {
+    return axios.get(`/audio-features?ids=${ids}`);
+  };
+
+

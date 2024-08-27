@@ -4,6 +4,9 @@ import { getCurrentUserPlaylists } from '../spotify';
 import { catchErrors } from '../utils';
 import { SectionWrapper, PlaylistsGrid, Loader } from '../components';
 
+
+// The playlists will render twice because of React.StrictMode which causes the first useEffect to execute twice 
+// By removing React.StrictMode in index.js, we don't get double rendering 
 const Playlists = () => {
   const [playlistsData, setPlaylistsData] = useState(null);
   const [playlists, setPlaylists] = useState(null);
@@ -12,6 +15,8 @@ const Playlists = () => {
     const fetchData = async () => {
       const { data } = await getCurrentUserPlaylists();
       setPlaylistsData(data);
+      console.log(data);
+      console.log('a');
     };
 
     catchErrors(fetchData());
@@ -30,6 +35,7 @@ const Playlists = () => {
       if (playlistsData.next) {
         const { data } = await axios.get(playlistsData.next);
         setPlaylistsData(data);
+        // console.log(data);
       }
     };
 
@@ -47,7 +53,6 @@ const Playlists = () => {
     catchErrors(fetchMoreData());
   }, [playlistsData]);
 
-  console.log(playlists);
 
   return (
     <main>
