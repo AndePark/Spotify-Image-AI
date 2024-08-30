@@ -4,13 +4,18 @@ require('dotenv').config();
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 const express = require('express');
 const querystring = require('querystring');
 const axios = require('axios');
 const app = express();
+
 const port = 8888;
+
+// const openai = new OpenAIApi({
+//     apiKey: OPENAI_API_KEY,
+// });
+
 
 
 /**
