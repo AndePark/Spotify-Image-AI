@@ -1,14 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { catchErrors } from '../utils'
-import { getPlaylistById, getAudioFeaturesForTracks, changeImage } from '../spotify';
+import { catchErrors} from '../utils'
+import { getPlaylistById, getAudioFeaturesForTracks } from '../spotify';
 import { StyledHeader, StyledDropdown} from '../styles';
 import { TrackList, SectionWrapper, Loader} from '../components';
+import ImageDisplay from './ImageDisplay';
+import { ThreeDots } from 'react-loader-spinner';
 import axios from 'axios';
 
 
 // useParams hook to get the id param from the URL 
-// then we pass that id to getPlaylistById function 
+// which can be used as the id for a specific playlist 
 const Playlist = () => {
     const { id } = useParams();
     const [playlist, setPlaylist] = useState(null);
@@ -17,26 +19,31 @@ const Playlist = () => {
     const [audioFeatures, setAudioFeatures] = useState(null);
     const [sortValue, setSortValue] = useState('');
     const sortOptions = ['danceability', 'tempo', 'energy'];
-    
+    const [base64Image, setBase64Image] = useState(null);
+    const [playlistImage, setPlaylistImage] = useState(null);
+    const [isGenerating, setIsGenerating] = useState(false);
 
     // id is a dependency for this useEffect hook because we need it to call the getPlaylistById function 
     // we are storing the playlist object as well as the tracks property from the playlist object so that 
     // we can get all the tracks, not just the limit (which is 100)
-    useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
         const { data } = await getPlaylistById(id);
         setPlaylist(data);
         setTracksData(data.tracks);
-        // const result = await changeDetails(id);
-        // console.log(result);
-        const response = await changeImage(id);
-        console.log(response);
+        setPlaylistImage(data.images[0].url);
     };
 
     catchErrors(fetchData()); 
     }, [id]);
 
-    // console.log(playlist);
+  // Function to handle image change
+  const handleImageChange = async () => {
+    const { data } = await getPlaylistById(id);
+    setPlaylistImage(data.images[0].url);
+  };
+
+
     // When tracksData updates, compile arrays of tracks and audioFeatures
     useEffect(() => {
         if(!tracksData) {
@@ -71,10 +78,9 @@ const Playlist = () => {
          };
 
       catchErrors(fetchAudioFeatures());
-
     }, [tracksData]);
 
-    // maps through each track object and returning the track property on it 
+    // maps through each track object, returning the track property on it 
    // Map over tracks and add audio_features property to each track
    const tracksWithAudioFeatures = useMemo(() => {
     if (!tracks || !audioFeatures) {
@@ -153,22 +159,54 @@ const Playlist = () => {
     };
   }, [audioFeatures]);
 
-  
 
+  const generateImage = async () => {
+    setIsGenerating(true);
+    try { 
+      const requestData = {
+        danceability: averageMetrics.danceability.toFixed(3),
+        energy: averageMetrics.energy.toFixed(3),
+        tempo: averageMetrics.tempo.toFixed(3),
+      };
+
+      console.log('calling');
+
+      const response = await fetch("http://localhost:8888/openai/generateImage", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      console.log('fetched');
+
+      const data = await response.json();
+      const baseImage = data.imageBase64;
+      // console.log(data.imageBase64);
+      // console.log(baseImage);
+      setBase64Image(`data:image/png;base64,${baseImage}`); 
+    } catch(error) {
+      console.error('Error generating image:', error.message);
+    }
+    setIsGenerating(false);
+    // console.log(playlist);
+  };
+    
+    
   return (
     <>
       {playlist ? (
         <>
           <StyledHeader>
-            
-            <div className="header__inner">
-              {playlist.images.length && playlist.images[0].url && (
-                <img
-                  className="header__img"
-                  src={playlist.images[0].url}
-                  alt="Playlist Artwork"
-                />
-              )}
+          <div className="header__inner">
+            {playlistImage && (
+                  <img
+                    className="header__img"
+                    src={playlistImage}
+                    alt="Playlist Artwork"
+                  />
+                )}
               <div>
                 <div className="header__overline">Playlist</div>
                 <h1 className="header__name">{playlist.name}</h1>
@@ -207,9 +245,22 @@ const Playlist = () => {
                   ))}
                 </select>
               </StyledDropdown>
-                <p>Average Danceability: {averageMetrics.danceability.toFixed(3)}</p>
-                <p>Average Energy: {averageMetrics.energy.toFixed(3)}</p>
-                <p>Average Tempo: {averageMetrics.tempo.toFixed(3)}</p>
+              <button onClick={generateImage}>Generate New Playlist Cover Image</button>
+                {isGenerating ? (
+                <div className="loader-wrapper">
+                  <ThreeDots 
+                    height="80" 
+                    width="80" 
+                    radius="9"
+                    color="#4fa94d" 
+                    ariaLabel="three-dots-loading"
+                    wrapperStyle={{}}
+                    wrapperClassName=""
+                    visible={true}
+                  />
+                </div> 
+                ) : (base64Image && <ImageDisplay base64Image={base64Image} id={id} onImageChange={handleImageChange}/>)}
+                {/* {base64Image && (<ImageDisplay base64Image={base64Image} id={id} onImageChange={handleImageChange}/>)} */}
               {sortedTracks && <TrackList tracks={sortedTracks} />}
             </SectionWrapper>
           </main>
@@ -219,8 +270,6 @@ const Playlist = () => {
       )}
     </>
   );
-
-  
 };
 
 export default Playlist;

@@ -1,22 +1,23 @@
-
 require('dotenv').config();
+const axios = require('axios');
+const cors = require('cors');
+const express = require('express');
+const querystring = require('querystring');
+const openAIController = require('./routes/openAIController');
+
+// setup 
+const app = express();
+
 // environment variables that are stored in .env file 
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI;
-
-const express = require('express');
-const querystring = require('querystring');
-const axios = require('axios');
-const app = express();
-
 const port = 8888;
 
-// const openai = new OpenAIApi({
-//     apiKey: OPENAI_API_KEY,
-// });
-
-
+// middleware
+app.use(cors());
+app.use(express.json());
+app.use('/openai', openAIController); 
 
 /**
  * Generates a random string containing numbers and letters
