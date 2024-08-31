@@ -25,7 +25,8 @@ const ImageDisplay = ({ base64Image, id, onImageChange}) => {
     const upload = async () => {
       try {
       const response = await changeImage(jpegBase, id);
-      // console.log(response.status);
+      console.log(jpegBase);
+      console.log(response.status);
       if (response.status && onImageChange) {
         onImageChange();
       }

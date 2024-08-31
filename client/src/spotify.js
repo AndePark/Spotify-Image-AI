@@ -120,23 +120,55 @@ const getAccessToken = () => {
   export const accessToken = getAccessToken();
 
   
- // this now works to change playlist cover image 
- export const changeImage = async (imgData, playlistId) => {
-  const response = await axios.put('https://api.spotify.com/v1/playlists/' + playlistId + '/images',
-    imgData
-    , {
-      headers: {
-        "Content-Type": "image/jpeg",
-        Authorization: `Bearer ${LOCALSTORAGE_VALUES.accessToken}`,
-      },
+//  // this now works to change playlist cover image 
+//  export const changeImage = async (imgData, playlistId) => {
+//   try {
+//     const response = await axios.put('https://api.spotify.com/v1/playlists/' + playlistId + '/images',
+//       imgData
+//       , {
+//         headers: {
+//           "Content-Type": 'image/jpeg',
+//           Authorization: `Bearer ${LOCALSTORAGE_VALUES.accessToken}`,
+//         },
+//       }, 
+//     );
+//     console.log(response.status);
+//     console.log(imgData);
+//     return response; 
+//   } catch (e) {
+//     console.error(e.response ? e.response.data : e.message);
+//   }
+// };
+
+export const changeImage = async (imgData, playlistId) => {
+  const maxRetries = 3;
+  const delay = 1000; // Initial delay in milliseconds
+
+  const retryRequest = async (retries, delay) => {
+    try {
+      const response = await axios.put(`https://api.spotify.com/v1/playlists/${playlistId}/images`,
+        imgData,
+        {
+          headers: {
+            "Content-Type": 'image/jpeg',
+            Authorization: `Bearer ${LOCALSTORAGE_VALUES.accessToken}`,
+          },
+        }
+      );
+
+      console.log('Success:', response.status);
+      return response;
+    } catch (e) {
+      console.error('Error response data:', e.response ? e.response.data : e.message);
+      if (retries === 0) throw e;
+      console.log(`Retrying in ${delay}ms...`);
+      await new Promise(res => setTimeout(res, delay));
+      return retryRequest(retries - 1, delay * 2); // Exponential backoff
     }
-  );
-  if (!response) {
-    return false;
-  }
-  // console.log(response.status);
-  return response; 
-}
+  };
+
+  return retryRequest(maxRetries, delay);
+};
 
 
 

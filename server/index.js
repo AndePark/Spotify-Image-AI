@@ -44,7 +44,6 @@ const generateRandomString = length => {
     const state = generateRandomString(16);
     res.cookie(stateKey, state);
   
-    // const scope = 'user-read-private user-read-email user-top-read ugc-image-upload playlist-read-private playlist-read-collaborative playlist-modify-private playlist-modify-public';
 
     const scope = [
       'user-read-private',
