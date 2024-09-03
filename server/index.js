@@ -1,19 +1,27 @@
-
 require('dotenv').config();
+const axios = require('axios');
+const cors = require('cors');
+const express = require('express');
+const querystring = require('querystring');
+const openAIController = require('./routes/openAIController');
+
+// setup 
+const app = express();
+
 // environment variables that are stored in .env file 
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = process.env.REDIRECT_URI;
-
-const express = require('express');
-const querystring = require('querystring');
-const axios = require('axios');
-const app = express();
 const port = 8888;
 
+// middleware
+app.use(cors());
+app.use(express.json());
+app.use('/openai', openAIController); 
 
 /**
  * Generates a random string containing numbers and letters
+ * Used to give state value which adds protection during authorization
  * @param  {number} length The length of the string
  * @return {string} The generated string
  */
@@ -36,8 +44,18 @@ const generateRandomString = length => {
     const state = generateRandomString(16);
     res.cookie(stateKey, state);
   
-    const scope = 'user-read-private user-read-email';
-  
+
+    const scope = [
+      'user-read-private',
+      'user-read-email',
+      'user-top-read',
+      'ugc-image-upload',
+      'playlist-read-private',
+      'playlist-read-collaborative',
+      'playlist-modify-private',
+      'playlist-modify-public',
+    ].join(' ');
+
     const queryParams = querystring.stringify({
       client_id: CLIENT_ID,
       response_type: 'code',
