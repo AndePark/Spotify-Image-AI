@@ -3,7 +3,7 @@ const axios = require('axios');
 const cors = require('cors');
 const express = require('express');
 const querystring = require('querystring');
-const openAIController = require('./routes/openAIController');
+const openAIController = require('./routes/openAIRoutes');
 
 // setup 
 const app = express();
